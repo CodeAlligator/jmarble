@@ -5,7 +5,10 @@
  * Programming Computer Games
  * Assignment 8
  * 5/6/2011
+ *
+ * Uses code from Mike Slattery's MBall
  */
+
 import java.applet.Applet;
 import java.awt.*;
 import com.sun.j3d.utils.applet.MainFrame;
@@ -15,6 +18,7 @@ import javax.media.j3d.*;
 import javax.vecmath.*;
 import com.sun.j3d.utils.behaviors.keyboard.*;
 import java.awt.event.*;
+import java.util.Enumeration;
 
 public class Marble extends Applet{
 
@@ -62,17 +66,19 @@ public class Marble extends Applet{
          * add update method and/or transform group to slowly change gravity vector
          */
 
-        /* Create a new Behavior object to update each frame
+        gravity = new Vector3f(0.0f, -1.0f, 0.0f);
+
+        // Create a new Behavior object to update each frame
         ComputeFrame cf = new ComputeFrame();
         BoundingSphere bounds = new BoundingSphere(new Point3d(),100.0);
         cf.setSchedulingBounds(bounds);
         objRoot.addChild(cf);
-         */
+         
 
 	return objRoot;
     } // end of CreateSceneGraph method
 
-    /* Not ready
+    
     class ComputeFrame extends Behavior
     {
 
@@ -95,7 +101,7 @@ public class Marble extends Applet{
             currTime = getView().getCurrentFrameStartTime();
             t = (currTime-prevTime)/1000.0f;
             prevTime = currTime;
-            player.updateBall(t);
+            player.updateBall(t, gravity);
             wakeupOn(stim);
         }
 
@@ -107,24 +113,24 @@ public class Marble extends Applet{
         public void keyPressed(KeyEvent e) {
             int key = e.getKeyCode();
             switch (key) {
-                case KeyEvent.VK_UP: player.keyup = true; break;
-                case KeyEvent.VK_DOWN: player.keydown = true; break;
-                case KeyEvent.VK_RIGHT: player.keyright = true; break;
-                case KeyEvent.VK_LEFT: player.keyleft = true; break;
+                case KeyEvent.VK_W: player.keyup = true; break;
+                case KeyEvent.VK_S: player.keydown = true; break;
+                case KeyEvent.VK_D: player.keyright = true; break;
+                case KeyEvent.VK_A: player.keyleft = true; break;
             }
         }
 
         public void keyReleased(KeyEvent e) {
             int key = e.getKeyCode();
             switch (key) {
-                case KeyEvent.VK_UP: player.keyup = false; break;
-                case KeyEvent.VK_DOWN: player.keydown = false; break;
-                case KeyEvent.VK_RIGHT: player.keyright = false; break;
-                case KeyEvent.VK_LEFT: player.keyleft = false; break;
+                case KeyEvent.VK_W: player.keyup = false; break;
+                case KeyEvent.VK_S: player.keydown = false; break;
+                case KeyEvent.VK_D: player.keyright = false; break;
+                case KeyEvent.VK_A: player.keyleft = false; break;
             }
         }
     }
-
+/*
     void checkViewpoint()
     {
         TransformGroup vpTrans = simpleU.getViewingPlatform().getViewPlatformTransform();
@@ -139,8 +145,8 @@ public class Marble extends Applet{
         Canvas3D canvas3D = new Canvas3D(SimpleUniverse.getPreferredConfiguration());
         add("Center", canvas3D);
         
-        /* not ready
-        canvas3D.addKeyListener(new keyL());*/
+        
+        canvas3D.addKeyListener(new keyL());
 
         // SimpleUniverse is a Convenience Utility class
         simpleU = new SimpleUniverse(canvas3D);

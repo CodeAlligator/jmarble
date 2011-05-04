@@ -7,9 +7,15 @@ import javax.vecmath.*;
  */
 public class Ball {
     private BranchGroup ballBG;
+    private static final float GRAVSPEED = 3;
+    private static final float MOVESPEED = 1;
     TransformGroup posTG; //A transform to the current position
+    TransformGroup rotTG; //A transform to the current direction
+    Transform3D t3d;
+    Transform3D rot3d;
     Vector3f velocity;  //Current velocity of the ball
     Vector3f position;  //Current position of the ball
+    float direction;    //Curent direction the ball is facing
     boolean keyup = false;
     boolean keydown = false;
     boolean keyleft = false;
@@ -18,10 +24,13 @@ public class Ball {
     public Ball(){
         ballBG = new BranchGroup();
         posTG = new TransformGroup();
+        rotTG = new TransformGroup();
 
         // Enable the TRANSFORM_WRITE capability so can modify position
         posTG.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
         posTG.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
+        rotTG.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+        rotTG.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
 
         //set appearance
         Color3f black = new Color3f(0.0f, 0.0f, 0.0f);
@@ -31,11 +40,17 @@ public class Ball {
         app.setMaterial(new Material(red, black, red, white, 80.0f));
 
         //starting position above center of floor
-        setPosition(new Vector3f(0.0f, 4.0f, 0.0f));
+
+        direction = 0;
+        position  = new Vector3f(0.0f, 4.0f, 0.0f);
+        velocity  = new Vector3f(0.0f, 0.0f, 0.0f);
+        setPositionTG();
+        setDirectionTG();
 
         //create ball
         Sphere s = new Sphere(0.2f, app);
-        posTG.addChild(s);
+        rotTG.addChild(s);
+        posTG.addChild(rotTG);
         ballBG.addChild(posTG);
 
         /*TODO
@@ -53,39 +68,44 @@ public class Ball {
     }
 
     // Move the Ball to the given position
-    void setPosition(Vector3f loc)
+    void setPositionTG()
     {
-        Transform3D t = new Transform3D();
-        t.setTranslation(loc);
-        posTG.setTransform(t);
+        t3d = new Transform3D();
+        t3d.setTranslation(position);
+        posTG.setTransform(t3d);
     }
 
-    /* not ready
-    void updateBall(float dt)
+    void setDirectionTG()
+    {
+        rot3d = new Transform3D();
+        rot3d.rotY(direction);
+        rotTG.setTransform(rot3d);
+    }
+    
+    void updateBall(float dt, Vector3f gravDir)
     {
         // dt is seconds elapsed time since previous frame
         if (keyup)
         {
-                rel_pos.scaleAdd(dt, velocity, rel_pos);
-                goflag = true;
+            
+        }
+        if (keydown)
+        {
+            
         }
         if (keyleft)
         {
-                rotation += dt*0.75f;
-                if (rotation > twopi);
-                        rotation -= twopi;
-                rot3d.rotY(rotation);
-                rot3d.transform(vel_prime, velocity);
-                tg.setTransform(rot3d);
+            direction += dt*0.75f;
+            if (direction > 2.0f*Math.PI);
+                    direction -= 2.0f*Math.PI;
+            setDirectionTG();
         }
         if (keyright)
         {
-                rotation -= dt*0.75f;
-                if (rotation < 0.0f);
-                        rotation += twopi;
-                rot3d.rotY(rotation);
-                rot3d.transform(vel_prime, velocity);
-                tg.setTransform(rot3d);
+            direction -= dt*0.75f;
+            if (direction < 0.0f);
+                    direction += 2.0f*Math.PI;
+            setDirectionTG();
         }
-    }*/
+    }
 }
