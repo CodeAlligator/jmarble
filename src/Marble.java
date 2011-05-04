@@ -14,115 +14,14 @@ import com.sun.j3d.utils.universe.*;
 import javax.media.j3d.*;
 import javax.vecmath.*;
 import com.sun.j3d.utils.behaviors.keyboard.*;
+import java.awt.event.*;
 
 public class Marble extends Applet{
 
     SimpleUniverse simpleU=null;
     Vector3f gravity;  //direction of marble acceleration and world position
-    private static final float BOXDIM = 10.0f;  //actually have of side length
-
-    // creates main box
-    public class Cube{
-        private BranchGroup boxBG;
-
-        public Cube(){
-            boxBG = new BranchGroup();
-
-            //set appearance
-            Color3f black = new Color3f(0.0f, 0.0f, 0.0f);
-            Color3f white = new Color3f(1.0f, 1.0f, 1.0f);
-            Color3f green = new Color3f(0.1f, 1.0f, 0.1f);
-            Appearance appB = new Appearance();
-            appB.setMaterial(new Material(green, black, green, white, 80.0f));
-
-            //cube sides
-
-            Box bottom = new Box(BOXDIM,.1f,BOXDIM,appB);
-            Transform3D t1 = new Transform3D();
-            t1.set(new Vector3d(0, -BOXDIM, 0));
-            TransformGroup tg1 = new TransformGroup(t1);
-            boxBG.addChild(tg1);
-            tg1.addChild(bottom);
-
-            Box top = new Box(BOXDIM,.1f,BOXDIM,appB);
-            Transform3D t2 = new Transform3D();
-            t2.set(new Vector3d(0, BOXDIM, 0));
-            TransformGroup tg2 = new TransformGroup(t2);
-            boxBG.addChild(tg2);
-            tg2.addChild(top);
-
-            Box front = new Box(BOXDIM,BOXDIM,0.1f,appB);
-            Transform3D t3 = new Transform3D();
-            t3.set(new Vector3d(0, 0, BOXDIM));
-            TransformGroup tg3 = new TransformGroup(t3);
-            boxBG.addChild(tg3);
-            tg3.addChild(front);
-
-            Box back = new Box(BOXDIM,BOXDIM,0.1f,appB);
-            Transform3D t4 = new Transform3D();
-            t4.set(new Vector3d(0, 0, -BOXDIM));
-            TransformGroup tg4 = new TransformGroup(t4);
-            boxBG.addChild(tg4);
-            tg4.addChild(back);
-
-            Box left = new Box(.1f,BOXDIM,BOXDIM,appB);
-            Transform3D t5 = new Transform3D();
-            t5.set(new Vector3d(-BOXDIM, 0, 0));
-            TransformGroup tg5 = new TransformGroup(t5);
-            boxBG.addChild(tg5);
-            tg5.addChild(left);
-
-            Box right = new Box(.1f,BOXDIM,BOXDIM,appB);
-            Transform3D t6 = new Transform3D();
-            t6.set(new Vector3d(BOXDIM, 0, 0));
-            TransformGroup tg6 = new TransformGroup(t6);
-            boxBG.addChild(tg6);
-            tg6.addChild(right);
-
-            boxBG.compile();
-        }
-
-        public BranchGroup getBG(){
-            return boxBG;
-        }
-    }
-
-    //creates player controlled marble
-    public class Ball{
-        private BranchGroup ballBG;
-        Vector3f velocity;  //Current velocity of the ball
-        Vector3f position;  //Current position of the ball
-
-        public Ball(){
-            ballBG = new BranchGroup();
-
-            //set appearance, either white or black
-            Color3f black = new Color3f(0.0f, 0.0f, 0.0f);
-            Color3f white = new Color3f(1.0f, 1.0f, 1.0f);
-            Color3f red = new Color3f(1.0f, 0.1f, 0.1f);
-            Appearance app = new Appearance();
-            app.setMaterial(new Material(red, black, red, white, 80.0f));
-
-            /*TODO
-             * create ball
-             * add transform based on position
-             * add rotational transform based on velocity
-             *      -add texture so rotation is noticible
-             * add set/get position/velocity methods
-             */
-
-            ballBG.compile();
-        }
-
-        public BranchGroup getBG(){
-            return ballBG;
-        }
-    }
-
-    //TODO: add coin class
-    public class Coin{
-
-    }
+    Ball player;
+    Transform3D followT3D;
 
     // main drawing section
     public BranchGroup createSceneGraph() {
@@ -131,7 +30,7 @@ public class Marble extends Applet{
 
         //Ambient light
         AmbientLight lightA = new AmbientLight();
-        BoundingSphere bs = new BoundingSphere(new Point3d(0.0,0.0,0.0),1000.0);
+        BoundingSphere bs = new BoundingSphere(new Point3d(0.0,0.0,0.0),100.0);
         lightA.setInfluencingBounds(bs);
         objRoot.addChild(lightA);
 
@@ -141,12 +40,19 @@ public class Marble extends Applet{
         Vector3f direction = new Vector3f(-1.0f, -1.0f, -1.0f);
         direction.normalize();
         lightD.setDirection(direction);
-        lightD.setColor(new Color3f(0.9f, 0.9f, 0.9f));
+        lightD.setColor(new Color3f(1f, 1f, 1f));
         objRoot.addChild(lightD);
 
+        // Set the background sky to blue
+        Background bg = new Background();
+        bg.setColor(0.0f, 0.0f, 1.0f); // yellow
+        bg.setApplicationBounds(new BoundingSphere());
+        objRoot.addChild(bg);
+
         // Place Box and Marble
+        player = new Ball();
         objRoot.addChild(new Cube().getBG());
-        objRoot.addChild(new Ball().getBG());
+        objRoot.addChild(player.getBG());
 
         /*TODO
          * draw sky and ground based on gravity vector
@@ -156,14 +62,85 @@ public class Marble extends Applet{
          * add update method and/or transform group to slowly change gravity vector
          */
 
+        /* Create a new Behavior object to update each frame
+        ComputeFrame cf = new ComputeFrame();
+        BoundingSphere bounds = new BoundingSphere(new Point3d(),100.0);
+        cf.setSchedulingBounds(bounds);
+        objRoot.addChild(cf);
+         */
 
 	return objRoot;
     } // end of CreateSceneGraph method
+
+    /* Not ready
+    class ComputeFrame extends Behavior
+    {
+
+        // This behavior updates the world for each frame
+        long prevTime, currTime;
+        float t;
+        WakeupOnElapsedFrames stim = new WakeupOnElapsedFrames(0);
+
+        public void initialize()
+        {
+            prevTime = 0L;
+            wakeupOn(stim);
+        }
+
+        public void processStimulus(Enumeration criteria)
+        {
+            // Each frame we figure out how much time has
+            // passed and call updateBall().
+            // Get elapsed time
+            currTime = getView().getCurrentFrameStartTime();
+            t = (currTime-prevTime)/1000.0f;
+            prevTime = currTime;
+            player.updateBall(t);
+            wakeupOn(stim);
+        }
+
+    }
+
+
+    class keyL extends KeyAdapter
+    {
+        public void keyPressed(KeyEvent e) {
+            int key = e.getKeyCode();
+            switch (key) {
+                case KeyEvent.VK_UP: player.keyup = true; break;
+                case KeyEvent.VK_DOWN: player.keydown = true; break;
+                case KeyEvent.VK_RIGHT: player.keyright = true; break;
+                case KeyEvent.VK_LEFT: player.keyleft = true; break;
+            }
+        }
+
+        public void keyReleased(KeyEvent e) {
+            int key = e.getKeyCode();
+            switch (key) {
+                case KeyEvent.VK_UP: player.keyup = false; break;
+                case KeyEvent.VK_DOWN: player.keydown = false; break;
+                case KeyEvent.VK_RIGHT: player.keyright = false; break;
+                case KeyEvent.VK_LEFT: player.keyleft = false; break;
+            }
+        }
+    }
+
+    void checkViewpoint()
+    {
+        TransformGroup vpTrans = simpleU.getViewingPlatform().getViewPlatformTransform();
+        Transform3D T3D =new Transform3D(player.t3d);
+        T3D.mul(player.rot3d);
+        T3D.mul(followT3D);
+        vpTrans.setTransform(T3D);
+    }*/
 
     public Marble() {
         setLayout(new BorderLayout());
         Canvas3D canvas3D = new Canvas3D(SimpleUniverse.getPreferredConfiguration());
         add("Center", canvas3D);
+        
+        /* not ready
+        canvas3D.addKeyListener(new keyL());*/
 
         // SimpleUniverse is a Convenience Utility class
         simpleU = new SimpleUniverse(canvas3D);
@@ -176,10 +153,21 @@ public class Marble extends Applet{
         KeyNavigatorBehavior keyNav = new KeyNavigatorBehavior(vpTrans);
         keyNav.setSchedulingBounds(new BoundingSphere(new Point3d(), 1000.0));
         scene.addChild(keyNav);
+        
 
 	scene.compile();
 
         simpleU.addBranchGraph(scene);
+
+        /* setup the transform followT3D to place
+        // the viewpoint "over the shoulder" of
+        // the ball
+        Vector3f backup = new Vector3f(0.0f, 0.0f, 5.0f);
+		followT3D = new Transform3D();
+		followT3D.rotX(-Math.PI/12.0);
+		Transform3D scoot = new Transform3D();
+		scoot.set(backup);
+		followT3D.mul(scoot);*/
     }
 
     //  The following allows this to be run as an application
