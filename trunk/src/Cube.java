@@ -51,7 +51,7 @@ public class Cube {
         TransformGroup tg4 = new TransformGroup(t4);
         boxBG.addChild(tg4);
         tg4.addChild(back);
-
+/*
         Box left = new Box(.1f,BOXDIM,BOXDIM,appB);
         Transform3D t5 = new Transform3D();
         t5.set(new Vector3d(-BOXDIM, 0, 0));
@@ -65,7 +65,7 @@ public class Cube {
         TransformGroup tg6 = new TransformGroup(t6);
         boxBG.addChild(tg6);
         tg6.addChild(right);
-
+*/
         boxBG.compile();
     }
 
