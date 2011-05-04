@@ -9,11 +9,13 @@ public class Ball {
     private BranchGroup ballBG;
     private static final float GRAVSPEED = 3;
     private static final float MOVESPEED = 1;
+    private static final float RADIUS = .2f;
     TransformGroup posTG; //A transform to the current position
     TransformGroup rotTG; //A transform to the current direction
     Transform3D t3d;
     Transform3D rot3d;
     Vector3f velocity;  //Current velocity of the ball
+    Vector3f gravvelocity;  //Current velocity of the ball due to gravity
     Vector3f position;  //Current position of the ball
     float direction;    //Curent direction the ball is facing
     boolean keyup = false;
@@ -41,14 +43,15 @@ public class Ball {
 
         //starting position above center of floor
 
-        direction = 0;
+        direction = 0.0f;
         position  = new Vector3f(0.0f, 4.0f, 0.0f);
         velocity  = new Vector3f(0.0f, 0.0f, 0.0f);
+        gravvelocity  = new Vector3f(0.0f, 0.0f, 0.0f);
         setPositionTG();
         setDirectionTG();
 
         //create ball
-        Sphere s = new Sphere(0.2f, app);
+        Sphere s = new Sphere(RADIUS, app);
         rotTG.addChild(s);
         posTG.addChild(rotTG);
         ballBG.addChild(posTG);
@@ -87,11 +90,18 @@ public class Ball {
         // dt is seconds elapsed time since previous frame
         if (keyup)
         {
-            
+            velocity.z = (float) (Math.cos(direction) * -MOVESPEED * dt);
+            velocity.x = (float) (Math.sin(direction) * -MOVESPEED * dt);
+            velocity.y = 0;
+            position.add(velocity);
         }
+
         if (keydown)
         {
-            
+            velocity.z = (float) (Math.cos(direction) * MOVESPEED * dt);
+            velocity.x = (float) (Math.sin(direction) * MOVESPEED * dt);
+            velocity.y = 0;
+            position.add(velocity);
         }
         if (keyleft)
         {
@@ -107,5 +117,38 @@ public class Ball {
                     direction += 2.0f*Math.PI;
             setDirectionTG();
         }
+        
+        //cumulativly add gravity speed
+        gravvelocity.scaleAdd(dt*GRAVSPEED, gravDir, gravvelocity);
+        position.add(gravvelocity);
+
+        //dont fall through walls
+        if (position.y < -Cube.BOXDIM + RADIUS){
+            position.y = -Cube.BOXDIM + RADIUS;
+            gravvelocity.y = 0f;
+        }
+        if (position.y > Cube.BOXDIM - RADIUS){
+            position.y = Cube.BOXDIM - RADIUS;
+            gravvelocity.y = 0f;
+        }
+        if (position.x < -Cube.BOXDIM + RADIUS){
+            position.x = -Cube.BOXDIM + RADIUS;
+            gravvelocity.x = 0f;
+        }
+        if (position.x > Cube.BOXDIM - RADIUS){
+            position.x = Cube.BOXDIM - RADIUS;
+            gravvelocity.x = 0f;
+        }
+        if (position.z < -Cube.BOXDIM + RADIUS){
+            position.z = -Cube.BOXDIM + RADIUS;
+            gravvelocity.z = 0f;
+        }
+        if (position.z > Cube.BOXDIM - RADIUS){
+            position.z = Cube.BOXDIM - RADIUS;
+            gravvelocity.z = 0f;
+        }
+
+        setPositionTG();
+
     }
 }
