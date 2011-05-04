@@ -102,6 +102,7 @@ public class Marble extends Applet{
             t = (currTime-prevTime)/1000.0f;
             prevTime = currTime;
             player.updateBall(t, gravity);
+            checkViewpoint();
             wakeupOn(stim);
         }
 
@@ -130,7 +131,7 @@ public class Marble extends Applet{
             }
         }
     }
-/*
+
     void checkViewpoint()
     {
         TransformGroup vpTrans = simpleU.getViewingPlatform().getViewPlatformTransform();
@@ -138,7 +139,7 @@ public class Marble extends Applet{
         T3D.mul(player.rot3d);
         T3D.mul(followT3D);
         vpTrans.setTransform(T3D);
-    }*/
+    }
 
     public Marble() {
         setLayout(new BorderLayout());
@@ -156,16 +157,17 @@ public class Marble extends Applet{
         //set up a KeyNavigator to let us move about
         TransformGroup vpTrans = simpleU.getViewingPlatform().getViewPlatformTransform();
 
+        /*
         KeyNavigatorBehavior keyNav = new KeyNavigatorBehavior(vpTrans);
         keyNav.setSchedulingBounds(new BoundingSphere(new Point3d(), 1000.0));
         scene.addChild(keyNav);
-        
+        */
 
 	scene.compile();
 
         simpleU.addBranchGraph(scene);
 
-        /* setup the transform followT3D to place
+        // setup the transform followT3D to place
         // the viewpoint "over the shoulder" of
         // the ball
         Vector3f backup = new Vector3f(0.0f, 0.0f, 5.0f);
@@ -173,7 +175,7 @@ public class Marble extends Applet{
 		followT3D.rotX(-Math.PI/12.0);
 		Transform3D scoot = new Transform3D();
 		scoot.set(backup);
-		followT3D.mul(scoot);*/
+		followT3D.mul(scoot);
     }
 
     //  The following allows this to be run as an application
