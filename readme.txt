@@ -1,0 +1,1 @@
+The lib folder contains the 3 jar files and 4 dll files required for Java3D. These libraries must be added to your development workspace. However, if you already have Java3D installed, you will not need these files.
