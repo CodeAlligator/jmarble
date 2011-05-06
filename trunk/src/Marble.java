@@ -118,6 +118,12 @@ public class Marble extends Applet{
                 case KeyEvent.VK_S: player.keydown = true; break;
                 case KeyEvent.VK_D: player.keyright = true; break;
                 case KeyEvent.VK_A: player.keyleft = true; break;
+                case KeyEvent.VK_L: gravity = new Vector3f(-1.0f, 0.0f, 0.0f);; break;//left
+                case KeyEvent.VK_R: gravity = new Vector3f(1.0f, 0.0f, 0.0f);; break;//right
+                case KeyEvent.VK_T: gravity = new Vector3f(0.0f, 1.0f, 0.0f);; break;//top
+                case KeyEvent.VK_G: gravity = new Vector3f(0.0f, -1.0f, 0.0f);; break;//ground
+                case KeyEvent.VK_F: gravity = new Vector3f(0.0f, 0.0f, -1.0f);; break;//front
+                case KeyEvent.VK_B: gravity = new Vector3f(0.0f, 0.0f, 1.0f);; break;//back
             }
         }
 
@@ -137,6 +143,15 @@ public class Marble extends Applet{
         TransformGroup vpTrans = simpleU.getViewingPlatform().getViewPlatformTransform();
         Transform3D T3D =new Transform3D(player.t3d);
         T3D.mul(player.rot3d);
+
+//        xform = new Transform3D();
+//        Point3d eye = new Point3d(player.position.x, player.position.y, player.position.z);
+//        Point3d center = new Point3d(player.pointing.x, player.pointing.y, player.pointing.z);
+//        Vector3d grav = new Vector3d(gravity);
+//        grav.scale(-1.0);
+//        xform.lookAt(eye, center, grav);
+
+        //Transform3D T3D =new Transform3D(xform);
         T3D.mul(followT3D);
         vpTrans.setTransform(T3D);
     }
@@ -157,11 +172,11 @@ public class Marble extends Applet{
         //set up a KeyNavigator to let us move about
         TransformGroup vpTrans = simpleU.getViewingPlatform().getViewPlatformTransform();
 
-        /*
-        KeyNavigatorBehavior keyNav = new KeyNavigatorBehavior(vpTrans);
-        keyNav.setSchedulingBounds(new BoundingSphere(new Point3d(), 1000.0));
-        scene.addChild(keyNav);
-        */
+        
+//        KeyNavigatorBehavior keyNav = new KeyNavigatorBehavior(vpTrans);
+//        keyNav.setSchedulingBounds(new BoundingSphere(new Point3d(), 1000.0));
+//        scene.addChild(keyNav);
+        
 
 	scene.compile();
 
