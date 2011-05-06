@@ -65,7 +65,10 @@ public class Marble extends Applet{
          * add keyboard controls to move ball
          * add update method and/or transform group to slowly change gravity vector
          */
-
+        
+        //	Place coins
+        objRoot.addChild(new Coin().getBG());
+        
         gravity = new Vector3f(0.0f, -1.0f, 0.0f);
 
         // Create a new Behavior object to update each frame
@@ -197,7 +200,6 @@ public class Marble extends Applet{
     //  as well as an applet
     public static void main(String[] args) {
         Frame frame = new MainFrame(new Marble(), 256, 256);
-    } // end of main method
-
-} // end of class
-
+        frame.setSize(800, 600);
+    }
+}
